@@ -1,0 +1,38 @@
+server {
+
+	server_name yourdomain.com;
+
+  # Change to your folder;
+  # Remember give permission to upload file.
+	root /var/www/;
+	index _images.php;
+
+  # Edit yourself php setting
+	location ~ \.php$ {
+			include fastcgi_params;
+			include snippets/fastcgi-php.conf;
+			fastcgi_pass unix:/run/php/php8.1-fpm.sock;
+			fastcgi_split_path_info ^(.+\.php)(.*)$;
+			fastcgi_param SCRIPT_FILENAME $document_root$fastcgi_script_name;
+	}	
+
+	location / {
+		try_files $uri $uri.html $uri/ @extensionless-php;
+		index _images.php;
+	}
+
+	location @extensionless-php {
+			rewrite ^(.*)$ $1.php last;
+	}
+
+	location ~ \.php$ {
+			try_files $uri =404;
+	}
+
+	location ~ /\.ht {
+			deny all;
+	}
+	
+	error_page 403 404 /_images.php;
+
+}
